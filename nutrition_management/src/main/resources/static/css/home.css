@@ -1,0 +1,104 @@
+@charset "UTF-8";
+
+#main {
+    width: 95%;
+    display: flex;
+    border: 2px solid #000;
+    margin: auto;
+    padding: 0px;
+}
+#choice_container {
+    width: 70%;
+    border: 2px solid #000;
+    margin: auto;
+    padding: 0px;
+}
+#selected_container {
+    width: 30%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+    border: 2px solid #F00;
+}
+.change_buttons {
+    padding: 3px;
+    height:100px;
+}
+/*.change_buttons button{*/
+/*    width: calc(10%);*/
+/*    font-weight: bold;*/
+/*    font-size: 20px;*/
+/*}*/
+.change_buttons input{
+    display: none;
+}
+.change_buttons label {
+    width: calc(8%);
+    font-weight: bold;
+    font-size: 15px;
+    background-color: skyblue;
+    padding: 5px 10px;
+}
+.change_buttons input:checked + label {
+     background-color: pink;
+}
+#category_container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 4px;
+    border: 2px solid #000;
+    padding: 0px;
+}
+#food_items_container {
+    border: 2px solid #000;
+    padding: 0px;
+    height: 500px;
+}
+.disp_switch {
+    width:100%;
+    height:100%;
+    display:block;
+}
+.food_items {
+    display: flex;
+    flex-wrap: wrap;
+    align-content:flex-start;   /* ２行以上の場合にアイテムを上に寄せる */
+/*    justify-content: center;*/
+    gap: 4px;
+    width:100%;
+    height:100%;
+    overflow-x: hidden;
+}
+.food_items .item {
+    width: 80px;
+    height: 130px;
+    border: 2px solid #000;
+    padding: 3px;
+    overflow:hidden
+}
+.item > p {
+    font-weight: bold;
+    font-size: 13px;
+    text-align: center;
+    margin: 0px;
+}
+.item > img {
+    width: 100%;
+    aspect-ratio: 1;    /* heightをwidthに合わせる(アスペクト比1:1) */
+}
+.food_items ul li {
+    list-style-type: none;
+    background-color: #99cc33;
+    border-top: 1px solid #ffffff;
+    border-left: 1px solid #ffffff;
+    border-bottom: 1px solid #999999;
+    border-right: 1px solid #999999;
+}
+.food_items a {
+    display: block;
+}
+.food_items a:hover {
+    background-color: #66aa66;
+}

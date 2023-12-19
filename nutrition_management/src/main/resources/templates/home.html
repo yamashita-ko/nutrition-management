@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>home</title>
+    <link th:href="@{/css/home.css}" rel="styleSheet">
+</head>
+<body>
+    <div id="main">
+        <div id="choice_container">
+            <!-- 食べ物の分類ボタン作成 -->
+            <div id="category_container" class="change_buttons">
+                <th:block th:each="foodType : ${typeList}">
+                <input th:id="|type${foodType.getFoodTypeId()}|" name="hoge" type="radio" th:value="${foodType.getFoodTypeId()}" th:onclick="|radioClick('__${foodType.getFoodTypeId()}__')|" />
+                <label th:for="|type${foodType.getFoodTypeId()}|"  th:text="${foodType.getName()}"}></label>
+            </div>
+            <!-- 食べ物ボタン作成 -->
+            <div id="food_items_container">
+                <th:block th:each="foodMainDto, stat : ${foodMainDtoList}">
+                <!-- 分類ボタンを押した際にviewtype(数字)で切り替え -->
+                <div th:id="|viewtype${stat.count}|" class="disp_switch">
+                    <!-- flexを使用するためのクラス -->
+                    <div class="food_items">
+                    <th:block th:each="foodMain : ${foodMainDto.getList()}">
+                        <!-- item(数字)のidを設定しどれが押されたかをscript側で判定 -->
+                        <div th:id="|item${foodMain.getFoodMainId()}|" class="item" th:onmouseover="|hover('${foodMain.getFoodMainId()}')|" th:onclick="|itemClick('${foodMain.getFoodMainId()}')|">
+                            <img th:src="@{/images/{image} (image=${foodMain.getImage()})}" th:alt="${foodMain.getName()}">
+                            <p th:text="${foodMain.getName()}"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="selected_container">
+            
+        </div>
+    <!--
+        <div id="flex_container" class="change_buttons">
+            <th:block th:each="foodType : ${typeList}">
+            <button type="submit" th:text="${foodType.getName()}"></button>
+        </div>
+        <div id="flex_container" class="food_items">
+            <th:block th:each="foodMain : ${mainList}">
+            <div class="item">
+                <img th:src="@{/images/{image} (image=${foodMain.getImage()})}" th:alt="${foodMain.getName()}">
+                <p th:text="${foodMain.getName()}"></p>
+            </div>
+        </div>
+    -->
+    </div>
+    <table border="1">
+      <tr>
+        <th>id</th>
+        <th>name</th>
+        <th>image</th>
+      </tr>
+      <th:block th:each="foodMain : ${mainList}">
+        <tr>
+          <td><p th:text="${foodMain.getFoodMainId()}"></p></td>
+          <td><p th:text="${foodMain.getName()}"></p></td>
+          <td><p th:text="${foodMain.getImage()}"></p></td>
+          <td><img th:src="@{/images/{image} (image=${foodMain.getImage()})}" th:alt="${foodMain.getName()}" width="50px" height="50px"></td>
+        </tr>
+      </th:block>
+    </table>
+    
+    <script type="text/javascript" th:inline="javascript">
+        // ボタンチェック初期設定
+        window.onload = function() {
+            document.getElementById('type1').checked = true;
+            
+            for (let i = 2; i <= 18; i++) {
+                let view = document.getElementById('viewtype' + i);
+                view.style.display = 'none';
+            }
+        }
+
+        // 種類選択ボタンクリック
+        var radioClick = function(index) {
+            for (let i = 1; i <= 18; i++) {
+                let view = document.getElementById('viewtype' + i);
+                view.style.display = 'none';
+            }
+            let view = document.getElementById('viewtype' + index);
+            view.style.display = 'block';
+        }
+
+        // 食材クリック
+        var itemClick = async function(mainId) {
+            console.log(mainId);
+            await fetch("http://localhost:8080/sub-food?mainId=" + mainId).then(function(res) {
+                // subfoodを呼び出し結果を後続処理に渡す
+                return res.json();
+            }).then(function(json) {
+                // 既に表示している場合スルー
+                if(document.getElementById("item" + mainId).classList.contains("foods")) return;
+                console.log(json);
+                console.log(Object.keys(json).length);
+                console.log(Object.values(json)[0]);
+                var subFood = Object.values(json)[0];
+                
+                var ul = document.createElement("ul");
+                ul.id = "foods";
+                ul.style.position = 'absolute';
+                ul.style.top = 50;
+                ul.style.left = 50;
+                for (let i = 0; i < subFood.length; i++) {
+                    // ドロップダウンリスト作成
+                    var newAnchor = document.createElement("a");
+                    var newTxt = document.createTextNode(subFood[i].name);
+                    newAnchor.appendChild( newTxt );
+                    newAnchor.setAttribute("target", "_blanc" );
+                    newAnchor.style.display = "block";
+                    var li = document.createElement("li");
+                    li.onclick=function() {
+                        document.getElementById(/*[[${elemId}]]*/)
+                    }
+                    //li.style.listStyle = "none";
+                    //li.style.backgroudColor = "#cdffee";
+                    //li.style.value = subFood[i].foodId;
+                    li.appendChild(newAnchor);
+                    ul.appendChild(li);
+                }
+                document.getElementById("item" + mainId).appendChild(ul);
+            });
+        }
+        document.addEventListener("click", (e) => {
+            if(null == document.getElementById("foods")) {
+                return;
+            }
+            if(e.target.closest(".foods")) {
+                // ドロップダウン内をクリック
+                console.log(json);
+            } else {
+                // それ以外をクリック
+                document.getElementById("foods").remove();
+            }
+        })
+        var choices;
+        
+        var hover = async function(index) {
+            return;
+            console.log(index);
+            //let item = document.getElementById('item' + index);
+            await fetch("http://localhost:8080/food-main?index=" + index).then(function(res) {
+                return res.json();
+            }).then(function(json) {
+              console.log(json);
+            });
+        }
+        
+    </script>
+</body>
+</html>

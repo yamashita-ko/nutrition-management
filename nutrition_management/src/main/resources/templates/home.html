@@ -23,7 +23,7 @@
                     <div class="food_items">
                     <th:block th:each="foodMain : ${foodMainDto.getList()}">
                         <!-- item(数字)のidを設定しどれが押されたかをscript側で判定 -->
-                        <div th:id="|item${foodMain.getFoodMainId()}|" class="item" th:onmouseover="|hover('${foodMain.getFoodMainId()}')|" th:onclick="|itemClick('${foodMain.getFoodMainId()}')|">
+                        <div id="item" class="item" th:value="${foodMain.getFoodMainId()}">
                             <img th:src="@{/images/{image} (image=${foodMain.getImage()})}" th:alt="${foodMain.getName()}">
                             <p th:text="${foodMain.getName()}"></p>
                         </div>
@@ -84,6 +84,16 @@
             let view = document.getElementById('viewtype' + index);
             view.style.display = 'block';
         }
+
+        // 食材クリック
+        // 動的生成DOMは通常発火できないためjQueryの記載方法を使用
+        //document.getElementById("item").addEventListener("click", function(event) {
+        // jQueryをインポートする必要がある
+        //$("#item").on("click", function(event) {
+        //    console.log("aaa")
+        //    var clickX = event.pageX;
+        //    var clickY = event.pageY;
+        //})
 
         // 食材クリック
         var itemClick = async function(mainId) {

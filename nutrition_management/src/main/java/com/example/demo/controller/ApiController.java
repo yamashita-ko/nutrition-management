@@ -24,9 +24,9 @@ public class ApiController {
     }
 
     @RequestMapping(value = "/food-main", method = RequestMethod.GET)
-	public BaseDto<FoodMasterBean> foodMain(@RequestParam(name = "index")Integer mainId) {
+	public BaseDto<FoodMasterBean> findFoodByMainId(@RequestParam(name = "mainId")Integer mainId) {
     	FoodMasterDao foodMasterDao = new FoodMasterDao();
-    	BaseDto<FoodMasterBean> foodMasterDto = foodMasterDao.findByMainId(mainId);
+    	BaseDto<FoodMasterBean> foodMasterDto = foodMasterDao.findAllByMainId(mainId);
     	return foodMasterDto;
     }
     
@@ -37,10 +37,10 @@ public class ApiController {
     	return limitDto;
     }
 
-    @RequestMapping(value = "/sub-food", method = RequestMethod.GET)
-	public BaseDto<FoodMasterBean> subFood(@RequestParam(name = "mainId")Integer mainId) {
+    @RequestMapping(value = "/food", method = RequestMethod.GET)
+	public FoodMasterBean findFoodByFoodId(@RequestParam(name = "foodId")Integer FoodId) {
     	FoodMasterDao foodMasterDao = new FoodMasterDao();
-    	BaseDto<FoodMasterBean> foodMasterDto = foodMasterDao.findAllMainId(mainId);
-    	return foodMasterDto;
+    	FoodMasterBean foodMaster = foodMasterDao.findByFoodId(FoodId);
+    	return foodMaster;
     }
 }

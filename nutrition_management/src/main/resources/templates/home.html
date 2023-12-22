@@ -32,7 +32,8 @@
             </div>
         </div>
         <div id="selected_container">
-            
+            <h2>選択した食材</h2>
+            <!-- 食べ物ボタン -->
         </div>
     <!--
         <div id="flex_container" class="change_buttons">
@@ -88,7 +89,7 @@
         // 食材クリック
         var itemClick = async function(mainId) {
             console.log(mainId);
-            await fetch("http://localhost:8080/sub-food?mainId=" + mainId).then(function(res) {
+            await fetch("http://localhost:8080/food-main?mainId=" + mainId).then(function(res) {
                 // subfoodを呼び出し結果を後続処理に渡す
                 return res.json();
             }).then(function(json) {
@@ -106,36 +107,56 @@
                 ul.style.left = 50;
                 for (let i = 0; i < subFood.length; i++) {
                     // ドロップダウンリスト作成
-                    var newAnchor = document.createElement("a");
-                    var newTxt = document.createTextNode(subFood[i].name);
-                    newAnchor.appendChild( newTxt );
-                    newAnchor.setAttribute("target", "_blanc" );
-                    newAnchor.style.display = "block";
+                    var button = document.createElement("a");
+                    var text = document.createTextNode(subFood[i].name);
+                    food_name = subFood[i].name;
+                    button.appendChild( text );
+                    button.setAttribute("target", "_blanc" );
+                    button.style.display = "block";
+                    button.setAttribute("id", subFood[i].foodId);
+                    button.onclick = async function(event){
+                        // ドロップダウンリストクリック時のイベント
+                        console.log(event.target.text);
+                        console.log(event.target.foodId);
+                        document.getElementById("selected_container");
+                        await fetch("http://localhost:8080/food?foodId=" + event.target.id).then(function(res) {
+                            // foodMainを呼び出し結果を後続処理に渡す
+                            return res.json();
+                        }).then(function(json) {
+                            console.log("food function");
+                            console.log(json);
+                        });
+                    };
+                    //button.onclick = dropdownClick();
+                    //button.addEventListener('click', dropdownClick());
+                    //console.log("createclickevent");
                     var li = document.createElement("li");
-                    li.onclick=function() {
-                        document.getElementById(/*[[${elemId}]]*/)
-                    }
-                    //li.style.listStyle = "none";
-                    //li.style.backgroudColor = "#cdffee";
-                    //li.style.value = subFood[i].foodId;
-                    li.appendChild(newAnchor);
+                    li.appendChild(button);
                     ul.appendChild(li);
                 }
                 document.getElementById("item" + mainId).appendChild(ul);
             });
         }
+        
+        function dropdownClick() {
+            return console.log("dropdown要素クリック");
+        }
+        
         document.addEventListener("click", (e) => {
+            // ドロップダウンリストが生成されていない場合
             if(null == document.getElementById("foods")) {
                 return;
             }
+            // 親要素がドロップダウン内の食べ物
             if(e.target.closest(".foods")) {
                 // ドロップダウン内をクリック
-                console.log(json);
+                console.log("dropdown: " + json);
             } else {
                 // それ以外をクリック
                 document.getElementById("foods").remove();
             }
         })
+        
         var choices;
         
         var hover = async function(index) {

@@ -7,11 +7,11 @@ import com.example.demo.bean.FoodMasterBean;
 import com.example.demo.dto.BaseDto;
 
 public class FoodMasterDao extends BaseDao{
-	public BaseDto<FoodMasterBean> findByMainId(Integer foodMainId) {
+	public FoodMasterBean findByFoodId(Integer foodId) {
 		Statement stmt = null;
 		ResultSet rs = null;
 		BaseDto<FoodMasterBean> result = new BaseDto();
-		String sql = "SELECT * FROM food_master WHERE food_main_id = " + foodMainId;
+		String sql = "SELECT * FROM food_master WHERE food_id = " + foodId;
 		try {
 			connect();
 			stmt = con.createStatement();
@@ -88,9 +88,9 @@ public class FoodMasterDao extends BaseDao{
 			}
 		}
 		disconnect();
-		return result;
+		return result.get(0);
 	}
-	public BaseDto<FoodMasterBean> findAllMainId(Integer foodMainId) {
+	public BaseDto<FoodMasterBean> findAllByMainId(Integer foodMainId) {
 		Statement stmt = null;
 		ResultSet rs = null;
 		BaseDto<FoodMasterBean> result = new BaseDto();

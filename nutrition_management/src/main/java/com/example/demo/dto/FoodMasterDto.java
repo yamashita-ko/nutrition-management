@@ -13,7 +13,6 @@ public class FoodMasterDto implements Serializable {
 		res.setKcal(bean.getKcal().doubleValue());
 		res.setProtein(bean.getProtein());
 		res.setFat(bean.getFat());
-		res.setSfa(bean.getChole());
 		res.setChocdf(bean.getChocdf());
 		res.setFib(bean.getFib());
 		res.setNa(bean.getNa());

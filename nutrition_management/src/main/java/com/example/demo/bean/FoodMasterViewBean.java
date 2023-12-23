@@ -6,7 +6,6 @@ public class FoodMasterViewBean implements Serializable {
 	private Double kcal;	// エネルギー(kcal)
 	private Double protein;	// たんぱく質(g)
 	private Double fat;		// 脂質(g)
-	private Double sfa;		// 飽和脂肪酸(mg)
 	private Double chocdf;	// 炭水化物(g)
 	private Double fib;		// 食物繊維(g)
 	private Double na;		// ナトリウム(mg)
@@ -47,12 +46,6 @@ public class FoodMasterViewBean implements Serializable {
 	}
 	public void setFat(Double fat) {
 		this.fat = fat;
-	}
-	public Double getSfa() {
-		return sfa;
-	}
-	public void setSfa(Double sfa) {
-		this.sfa = sfa;
 	}
 	public Double getChocdf() {
 		return chocdf;

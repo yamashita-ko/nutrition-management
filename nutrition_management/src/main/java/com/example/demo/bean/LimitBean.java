@@ -8,7 +8,6 @@ public class LimitBean implements Serializable {
 	private Double kcal;
 	private Double protein;
 	private Double fat;
-	private Double sfa;
 	private Double chocdf;
 	private Double fib;
 	private Double na;
@@ -61,12 +60,6 @@ public class LimitBean implements Serializable {
 	}
 	public void setFat(Double fat) {
 		this.fat = fat;
-	}
-	public Double getSfa() {
-		return sfa;
-	}
-	public void setSfa(Double sfa) {
-		this.sfa = sfa;
 	}
 	public Double getChocdf() {
 		return chocdf;

@@ -23,7 +23,7 @@
                     <div class="food_items">
                     <th:block th:each="foodMain : ${foodMainDto.getList()}">
                         <!-- item(数字)のidを設定しどれが押されたかをscript側で判定 -->
-                        <div th:id="|item${foodMain.getFoodMainId()}|" class="item" th:onmouseover="|hover('${foodMain.getFoodMainId()}')|" th:onclick="|itemClick('${foodMain.getFoodMainId()}')|">
+                        <div th:id="|item${foodMain.getFoodMainId()}|" class="item" th:onclick="|itemClick('${foodMain.getFoodMainId()}')|">
                             <img th:src="@{/images/{image} (image=${foodMain.getImage()})}" th:alt="${foodMain.getName()}">
                             <p th:text="${foodMain.getName()}"></p>
                         </div>
@@ -49,6 +49,33 @@
         </div>
     -->
     </div>
+    <div id="graph_container">
+        <div id="option_container">
+            <label class="switch-light switch-candy gender" onclick="">
+                <input type="checkbox">
+                    <strong class="column">性別</strong>
+                    <span>
+                        <span>男</span>
+                        <span>女</span>
+                        <a></a>
+                    </span>
+            </label>
+            <label><input type="radio" name="age" onclick="setAge(1)">～１歳</label>
+            <label><input type="radio" name="age" onclick="setAge(2)">～２歳</label>
+            <label><input type="radio" name="age" onclick="setAge(5)">～５歳</label>
+            <label><input type="radio" name="age" onclick="setAge(7)">～７歳</label>
+            <label><input type="radio" name="age" onclick="setAge(9)">～９歳</label>
+            <label><input type="radio" name="age" onclick="setAge(11)">～１１歳</label>
+            <label><input type="radio" name="age" onclick="setAge(14)">～１４歳</label>
+            <label><input type="radio" name="age" onclick="setAge(17)">～１７歳</label>
+            <label><input type="radio" name="age" onclick="setAge(29)" checked>～２９歳</label>
+            <label><input type="radio" name="age" onclick="setAge(49)">～４９歳</label>
+            <label><input type="radio" name="age" onclick="setAge(64)">～６４歳</label>
+            <label><input type="radio" name="age" onclick="setAge(74)">～７４歳</label>
+            <label><input type="radio" name="age" onclick="setAge(120)">～１２０歳</label>
+        </div>
+        <canvas id="graph"></canvas>
+    </div>
     <table border="1">
       <tr>
         <th>id</th>
@@ -65,8 +92,16 @@
       </th:block>
     </table>
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/0.5.7/chartjs-plugin-annotation.min.js'></script>
+    <link href="https://cdn.jsdelivr.net/npm/css-toggle-switch@4.1.0/dist/toggle-switch.min.css" rel="stylesheet">
     <script type="text/javascript" th:inline="javascript">
-        // ボタンチェック初期設定
+        var myChart = null;
+        var gender = 1;
+        var age = 29;
+        var selectFoodId = 1005;
+        var selectFoodName = "おおむぎ　七分つき押麦";
+        // カテゴリボタン初期設定
         window.onload = function() {
             document.getElementById('type1').checked = true;
             
@@ -76,7 +111,7 @@
             }
         }
 
-        // 種類選択ボタンクリック
+        // カテゴリボタンクリック
         var radioClick = function(index) {
             for (let i = 1; i <= 18; i++) {
                 let view = document.getElementById('viewtype' + i);
@@ -88,16 +123,14 @@
 
         // 食材クリック
         var itemClick = async function(mainId) {
-            console.log(mainId);
             await fetch("http://localhost:8080/food-main?mainId=" + mainId).then(function(res) {
-                // subfoodを呼び出し結果を後続処理に渡す
                 return res.json();
             }).then(function(json) {
                 // 既に表示している場合スルー
                 if(document.getElementById("item" + mainId).classList.contains("foods")) return;
                 console.log(json);
-                console.log(Object.keys(json).length);
-                console.log(Object.values(json)[0]);
+                //console.log(Object.keys(json).length);
+                //console.log(Object.values(json)[0]);
                 var subFood = Object.values(json)[0];
                 
                 var ul = document.createElement("ul");
@@ -113,20 +146,11 @@
                     button.appendChild( text );
                     button.setAttribute("target", "_blanc" );
                     button.style.display = "block";
+                    
                     button.setAttribute("id", subFood[i].foodId);
-                    button.onclick = async function(event){
-                        // ドロップダウンリストクリック時のイベント
-                        console.log(event.target.text);
-                        console.log(event.target.foodId);
-                        document.getElementById("selected_container");
-                        await fetch("http://localhost:8080/food?foodId=" + event.target.id).then(function(res) {
-                            // foodMainを呼び出し結果を後続処理に渡す
-                            return res.json();
-                        }).then(function(json) {
-                            console.log("food function");
-                            console.log(json);
-                        });
-                    };
+                    button.setAttribute("name", subFood[i].name);
+                    // 引数あり関数をonclickで呼び出す場合アロー関数を使用
+                    button.onclick = (event) => createGraph(event);
                     //button.onclick = dropdownClick();
                     //button.addEventListener('click', dropdownClick());
                     //console.log("createclickevent");
@@ -138,9 +162,122 @@
             });
         }
         
-        function dropdownClick() {
-            return console.log("dropdown要素クリック");
+        async function createGraph(event) {
+            console.log(event.target.id);
+            console.log(event.target.name);
+            // ドロップダウンリストクリック時のイベント
+            document.getElementById("selected_container");
+            const food = await fetch("http://localhost:8080/food?foodId=" + event.target.id).then(function(res) {
+                // 食材100gあたりの栄養素を取得
+                return res.json();
+            });
+            const limit = await fetch("http://localhost:8080/limit?gender=" + window.gender + "&age=" + window.age).then(function(res) {
+                // １日に必要な栄養素の目安を取得
+                return res.json();
+            });
+            var label = await fetch("http://localhost:8080/label").then(function(res) {
+                // グラフ表示用栄養素のカラム・ラベルを取得
+                return res.json();
+            });
+            label = Object.values(label)[0];
+            const label_text = label.map((obj) => obj.nameJP);
+            const colmun = label.map((obj) => obj.name);
+            var nutrition = []
+            // 食材100g / 1日の摂取量 の割合を算出しlabelと同じ順番で格納 小数第2位四捨五入
+            colmun.forEach((element) => nutrition.push((food[element] / limit[element] * 100).toFixed(1)));
+            // ゼロ除算考慮
+            nutrition = nutrition.map((element) => {
+                if(isFinite(element)) {
+                    return element;
+                };
+                return 0.0;
+            });
+            
+            drawGraph(label_text, nutrition, event.target.name);
         }
+        
+        function drawGraph(label, nutrition, name) {
+            // 前回のグラフを削除(グローバル変数)
+            if(window.myChart) {
+                window.myChart.destroy();
+            }
+            var ctx = document.getElementById("graph");
+            window.myChart = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: label,
+                    datasets: [
+                        {
+                            label: '摂取量',
+                            data: nutrition,
+                            backgroundColor: "rgba(39,219,91,0.5)"
+                        }
+                    ]
+                },
+                options: {
+                    title: {
+                        display: true,
+                        text: name + ' 100g / １日の摂取目安量'
+                    },
+                    scales: {
+                        xAxes: [{
+                            // Ｘ軸ラベルを全部表示させるため角度調整
+                            ticks: {
+                                maxRotation: 90,
+                                minRotation: 90,
+                                // ラベル名が長くなる場合改行
+                                callback: function(val){
+                                    if(val.length > 5){
+                                        return [val.substr(0, 5), val.substr(5)]
+                                    }else{
+                                        return val;
+                                    }
+                                }
+                            }
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                suggestedMax: 120,
+                                suggestedMin: 0,
+                                stepSize: 10,
+                                callback: function(value, index, values){
+                                    return  value +  '%'
+                                }
+                            }
+                        }]
+                    },
+                    annotation: {
+                        drawTime: 'afterDatasetsDraw',
+                        annotations: [
+                            {
+                                id: 'hline',
+                                type: 'line',
+                                mode: 'horizontal',
+                                scaleID: 'y-axis-0',
+                                value: 100,
+                                borderColor: 'black',
+                                borderWidth: 2,
+                                label: {
+                                    backgroundColor: "red",
+                                    content: "１日の摂取目安量",
+                                    enabled: true
+                                },
+                            },
+                        ]
+                    },
+                    maintainAspectRatio: false // 固定アスペクト比解除
+                }
+            });
+        }
+        
+        var setAge = function(age) {
+            window.age = age; 
+        }
+        function buttonClick(aaa) {
+            
+            console.log("aaaaaaaaaaa"); 
+        }
+        let age_el = document.getElementsByName('age').addEventListener;
         
         document.addEventListener("click", (e) => {
             // ドロップダウンリストが生成されていない場合

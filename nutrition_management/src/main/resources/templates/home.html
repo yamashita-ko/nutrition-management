@@ -23,7 +23,7 @@
                     <div class="food_items">
                     <th:block th:each="foodMain : ${foodMainDto.getList()}">
                         <!-- item(数字)のidを設定しどれが押されたかをscript側で判定 -->
-                        <div th:id="|item${foodMain.getFoodMainId()}|" class="item" th:onclick="|itemClick('${foodMain.getFoodMainId()}')|">
+                        <div th:id="|item${foodMain.getFoodMainId()}|" class="item" th:onclick="|itemClick(event, '${foodMain.getFoodMainId()}')|">
                             <img th:src="@{/images/{image} (image=${foodMain.getImage()})}" th:alt="${foodMain.getName()}">
                             <p th:text="${foodMain.getName()}"></p>
                         </div>
@@ -33,7 +33,10 @@
         </div>
         <div id="selected_container">
             <h2>選択した食材</h2>
-            <!-- 食べ物ボタン -->
+            <br>
+            <div id="selected_foods">
+                
+            </div>
         </div>
     <!--
         <div id="flex_container" class="change_buttons">
@@ -51,7 +54,7 @@
     </div>
     <div id="graph_container">
         <div id="option_container">
-            <label class="switch-light switch-candy gender" onclick="">
+            <label class="switch-light switch-candy gender" onchange="toggleGender()">
                 <input type="checkbox">
                     <strong class="column">性別</strong>
                     <span>
@@ -101,6 +104,7 @@
         var age = 29;
         var selectFoodId = 1005;
         var selectFoodName = "おおむぎ　七分つき押麦";
+        var selectFoodMain = [];
         // カテゴリボタン初期設定
         window.onload = function() {
             document.getElementById('type1').checked = true;
@@ -109,6 +113,8 @@
                 let view = document.getElementById('viewtype' + i);
                 view.style.display = 'none';
             }
+            // デフォルトグラフ描画
+            createGraph(window.selectFoodId, window.selectFoodName);
         }
 
         // カテゴリボタンクリック
@@ -122,38 +128,42 @@
         }
 
         // 食材クリック
-        var itemClick = async function(mainId) {
+        var itemClick = async (event, mainId) => {
+            console.log("マウスＸ" + event.screenX);
+            console.log("マウスＹ" + event.screenY);
             await fetch("http://localhost:8080/food-main?mainId=" + mainId).then(function(res) {
                 return res.json();
             }).then(function(json) {
                 // 既に表示している場合スルー
                 if(document.getElementById("item" + mainId).classList.contains("foods")) return;
-                console.log(json);
-                //console.log(Object.keys(json).length);
-                //console.log(Object.values(json)[0]);
                 var subFood = Object.values(json)[0];
                 
                 var ul = document.createElement("ul");
                 ul.id = "foods";
                 ul.style.position = 'absolute';
-                ul.style.top = 50;
-                ul.style.left = 50;
+                ul.style.top = event.screenY - document.getElementById("category_container").getBoundingClientRect().height + "px";
+                console.log(document.getElementById("category_container").clientHeight);
+                ul.style.left = event.screenX + "px";
+                ul.style.zIndex = 6;
                 for (let i = 0; i < subFood.length; i++) {
                     // ドロップダウンリスト作成
                     var button = document.createElement("a");
-                    var text = document.createTextNode(subFood[i].name);
-                    food_name = subFood[i].name;
-                    button.appendChild( text );
+                    button.appendChild(document.createTextNode(subFood[i].name));
                     button.setAttribute("target", "_blanc" );
                     button.style.display = "block";
-                    
-                    button.setAttribute("id", subFood[i].foodId);
-                    button.setAttribute("name", subFood[i].name);
                     // 引数あり関数をonclickで呼び出す場合アロー関数を使用
-                    button.onclick = (event) => createGraph(event);
-                    //button.onclick = dropdownClick();
-                    //button.addEventListener('click', dropdownClick());
-                    //console.log("createclickevent");
+                    button.onclick = (e) => {
+                        console.log("selectFoodMain");
+                        window.selectFoodMain.push(subFood[i]);
+                        // 選択した食べ物を選択した食材へ移動
+                        createSelectedFood();
+                        // グラフ作成
+                        createGraph(subFood[i].foodId, subFood[i].name);
+                        // 親要素のonclickに影響させない
+                        e.stopPropagation()
+                        // ドロップダウンリスト削除
+                        document.getElementById("foods").remove();
+                    }
                     var li = document.createElement("li");
                     li.appendChild(button);
                     ul.appendChild(li);
@@ -162,12 +172,20 @@
             });
         }
         
-        async function createGraph(event) {
-            console.log(event.target.id);
-            console.log(event.target.name);
+        function createSelectedFood() {
+            console.log("createSelectedFood");
+            console.log(window.selectFoodMain);
+            
+        }
+        
+        async function createGraph(id, name) {
+            window.selectFoodId = id;
+            window.selectFoodName = name;
+            console.log(window.selectFoodId);
+            console.log(window.selectFoodName);
             // ドロップダウンリストクリック時のイベント
             document.getElementById("selected_container");
-            const food = await fetch("http://localhost:8080/food?foodId=" + event.target.id).then(function(res) {
+            const food = await fetch("http://localhost:8080/food?foodId=" + window.selectFoodId).then(function(res) {
                 // 食材100gあたりの栄養素を取得
                 return res.json();
             });
@@ -182,7 +200,7 @@
             label = Object.values(label)[0];
             const label_text = label.map((obj) => obj.nameJP);
             const colmun = label.map((obj) => obj.name);
-            var nutrition = []
+            var nutrition = [];
             // 食材100g / 1日の摂取量 の割合を算出しlabelと同じ順番で格納 小数第2位四捨五入
             colmun.forEach((element) => nutrition.push((food[element] / limit[element] * 100).toFixed(1)));
             // ゼロ除算考慮
@@ -192,8 +210,9 @@
                 };
                 return 0.0;
             });
-            
-            drawGraph(label_text, nutrition, event.target.name);
+            console.log(food);
+            console.log(limit);
+            drawGraph(label_text, nutrition, window.selectFoodName);
         }
         
         function drawGraph(label, nutrition, name) {
@@ -271,27 +290,25 @@
         }
         
         var setAge = function(age) {
-            window.age = age; 
+            window.age = age;
+            // グラフ更新
+            createGraph(window.selectFoodId, window.selectFoodName);
         }
-        function buttonClick(aaa) {
+        var toggleGender = function() {
+            // 1か2をトグルで設定
+            window.gender = window.gender % 2 + 1;
+            console.log(window.gender);
+            // グラフ更新
+            createGraph(window.selectFoodId, window.selectFoodName);
             
-            console.log("aaaaaaaaaaa"); 
         }
-        let age_el = document.getElementsByName('age').addEventListener;
-        
         document.addEventListener("click", (e) => {
             // ドロップダウンリストが生成されていない場合
             if(null == document.getElementById("foods")) {
                 return;
             }
-            // 親要素がドロップダウン内の食べ物
-            if(e.target.closest(".foods")) {
-                // ドロップダウン内をクリック
-                console.log("dropdown: " + json);
-            } else {
-                // それ以外をクリック
-                document.getElementById("foods").remove();
-            }
+            // ドロップダウンリスト表示中にクリックした場合消す 判定は動的DOMのonclick側で
+            document.getElementById("foods").remove();
         })
         
         var choices;

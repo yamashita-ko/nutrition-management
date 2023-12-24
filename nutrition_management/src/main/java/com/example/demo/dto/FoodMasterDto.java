@@ -21,7 +21,8 @@ public class FoodMasterDto implements Serializable {
 		res.setMg(bean.getMg().doubleValue());
 		res.setP(bean.getP().doubleValue());
 		res.setFe(bean.getFe());
-		res.setZn(bean.getCu());
+		res.setZn(bean.getZn());
+		res.setCu(bean.getCu());
 		res.setMn(bean.getMn());
 		res.setVita(bean.getVitaRae());	// レチノール活性量のみが対象
 		res.setVitd(bean.getVitd());

@@ -49,6 +49,7 @@ public class LimitDao extends BaseDao{
 				bean.setMg(rs.getDouble("mg"));
 				bean.setP(rs.getDouble("p"));
 				bean.setFe(rs.getDouble("fe"));
+				bean.setZn(rs.getDouble("zn"));
 				bean.setCu(rs.getDouble("cu"));
 				bean.setMn(rs.getDouble("mn"));
 				bean.setVita(rs.getDouble("vita"));

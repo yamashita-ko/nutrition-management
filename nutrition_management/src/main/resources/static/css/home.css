@@ -32,9 +32,12 @@
     justify-content: center;
     gap: 4px;
 }
+#selected_foods {
+    border-top: 2px solid #000;
+}
 #graph_container {
     width: 95%;
-    height: 600px;
+    height: 700px;
     border: 2px solid #000;
     margin: auto;
     padding: 0px;
@@ -101,6 +104,11 @@
 .item > img {
     width: 100%;
     aspect-ratio: 1;    /* heightをwidthに合わせる(アスペクト比1:1) */
+}
+#foods {
+    margin-block-start: 0px;
+    margin-block-end: 0px;
+    padding-inline-start: 0px;
 }
 .food_items ul li {
     list-style-type: none;

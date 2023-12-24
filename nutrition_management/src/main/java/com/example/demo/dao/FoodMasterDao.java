@@ -35,6 +35,9 @@ public class FoodMasterDao extends BaseDao{
 				bean.setChoavlm(rs.getDouble("choavlm"));
 				bean.setChoavl(rs.getDouble("choavl"));
 				bean.setChoavldf(rs.getDouble("choavldf"));
+				bean.setFib(rs.getDouble("fib"));
+				bean.setPolyl(rs.getDouble("polyl"));
+				bean.setChocdf(rs.getDouble("chocdf"));
 				bean.setOa(rs.getDouble("oa"));
 				bean.setAsh(rs.getDouble("ash"));
 				bean.setNa(rs.getDouble("na"));

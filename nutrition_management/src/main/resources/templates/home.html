@@ -75,6 +75,16 @@
     <script type="text/javascript" th:inline="javascript">
         const SELECTED_FOODS_ID = 999;
         const SELECTED_FOODS_NAME = "選択した食べ物の合計";
+        const DEFAULT_TYPE = 1;
+        const MAX_TYPE = 18;
+        const WORD_PX = "px";
+        const WORD_G = "g";
+        const SLIDER_MIN = 1;
+        const SLIDER_MAX = 1000;
+        const SLIDER_STEP = 1;
+        const MAX_WORD_LENGTH = 15;
+        const IMAGE_PATH = "images/"
+        const DROPDOWN_ZINDEX = 6;
         var myChart = null;
         var gender = 1;
         var age = 29;
@@ -83,19 +93,20 @@
         var selectFood = [];
         // カテゴリボタン初期設定
         window.onload = function() {
-            document.getElementById('type1').checked = true;
+            document.getElementById('type' + DEFAULT_TYPE).checked = true;
             
-            for (let i = 2; i <= 18; i++) {
+            for (let i = 1; i <= MAX_TYPE; i++) {
+                if(i == DEFAULT_TYPE) {
+                    continue;
+                }
                 let view = document.getElementById('viewtype' + i);
                 view.style.display = 'none';
             }
-            // デフォルトグラフ描画
-            //createGraph(window.selectFoodId, window.selectFoodName);
         }
 
         // カテゴリボタンクリック
         var radioClick = function(index) {
-            for (let i = 1; i <= 18; i++) {
+            for (let i = 1; i <= MAX_TYPE; i++) {
                 let view = document.getElementById('viewtype' + i);
                 view.style.display = 'none';
             }
@@ -105,22 +116,16 @@
 
         // 食材クリック
         var itemClick = async (event, mainId) => {
-            console.log("マウスＸ" + event.screenX);
-            console.log("マウスＹ" + event.screenY);
             await fetch("http://localhost:8080/food?mainId=" + mainId).then(function(res) {
                 return res.json();
             }).then(function(json) {
-                // 既に表示している場合スルー
-                if(document.getElementById("item" + mainId).classList.contains("foods")) return;
                 var subFood = Object.values(json)[0];
-                
                 var ul = document.createElement("ul");
                 ul.id = "foods";
                 ul.style.position = 'absolute';
-                ul.style.top = event.screenY - document.getElementById("category_container").getBoundingClientRect().height + "px";
-                console.log(document.getElementById("category_container").clientHeight);
-                ul.style.left = event.screenX + "px";
-                ul.style.zIndex = 6;
+                ul.style.top = event.screenY - document.getElementById("category_container").getBoundingClientRect().height + WORD_PX;
+                ul.style.left = event.screenX + WORD_PX;
+                ul.style.zIndex = DROPDOWN_ZINDEX;
                 for (let i = 0; i < subFood.length; i++) {
                     // ドロップダウンリスト作成
                     var button = document.createElement("a");
@@ -131,8 +136,10 @@
                     button.onclick = (e) => {
                         // 選択した食べ物を選択した食材へ移動
                         createSelectedFood(subFood[i]);
+                        window.selectFoodId = subFood[i].foodId;
+                        window.selectFoodName = subFood[i].name;
                         // グラフ作成
-                        createGraph(subFood[i].foodId, subFood[i].name);
+                        createGraph();
                         // 親要素のonclickに影響させない
                         e.stopPropagation()
                         // ドロップダウンリスト削除
@@ -146,9 +153,9 @@
             });
         }
         
+        // 選択した食材を作成
         async function createSelectedFood(food) {
             const food_ids = window.selectFood.map((obj) => obj.id);
-            console.log(food_ids);
             if(food_ids.includes(food.foodId)) {
                 // 重複する場合追加しない
                 return;
@@ -157,11 +164,7 @@
                 // 食材100gあたりの栄養素を取得
                 return res.json();
             });
-            console.log("selectFood");
-            var select_food_index = window.selectFood.push(food_view);
-            console.log(select_food_index);
-            console.log(window.selectFood);
-            console.log("createSelectedFood");
+            window.selectFood.push(food_view);
             var el = document.getElementById("selected_foods");
             var div_el = document.createElement("div");
             var img_el = document.createElement("img");
@@ -178,33 +181,28 @@
                 // 食材100gあたりの栄養素を取得
                 return res.json();
             });
-            console.log(foodMain);
-            img_el.src = "images/" + foodMain.image;
-            const MAX_LENGTH = 15;
+            img_el.src = IMAGE_PATH + foodMain.image;
             var food_name = food.name;
-            if(food_name.length > MAX_LENGTH) {
-                food_name = food_name.substr(0, MAX_LENGTH) + '...';
+            if(food_name.length > MAX_WORD_LENGTH) {
+                food_name = food_name.substr(0, MAX_WORD_LENGTH) + '...';
             }
-            p_el.textContent  = food_name + food_view.amount + "g";
+            p_el.textContent  = food_name + food_view.amount + WORD_G;
             input_el.type = "range";
             input_el.value = food_view.amount;
-            input_el.min = "1";
-            span_min_el.innerText = input_el.min + "g";
-            input_el.max = "1000";
-            span_max_el.innerText = input_el.max + "g";
-            input_el.step = "1";
-            input_el.style.width = 300 + "px";
-            input_el.style.height = 30 + "px";
+            input_el.min = SLIDER_MIN;
+            span_min_el.innerText = SLIDER_MIN + WORD_G;
+            input_el.max = SLIDER_MAX;
+            span_max_el.innerText = SLIDER_MAX + WORD_G;
+            input_el.step = SLIDER_STEP;
+            input_el.style.width = 300 + WORD_PX;
+            input_el.style.height = 30 + WORD_PX;
             input_el.onchange = (e) => {
                 window.selectFood.forEach((item, index) => {
                     if(item.id === food.foodId) {
-                        console.log("スライダーで量調整");
-                        console.log(item);
-                        p_el.textContent = food_name + e.target.value + "g";
+                        p_el.textContent = food_name + e.target.value + WORD_G;
                         // 変更前と変更後の量から栄養量を変更する
                         item = Object.keys(item).reduce((acc, value) => {
                             if(value == "id" || value == "amount") {
-                                console.log(value);
                                 // 対象外
                                 acc[value] = item[value];
                                 return acc;
@@ -214,7 +212,6 @@
                         }, {});
                         item.amount = parseInt(e.target.value);
                         window.selectFood[index] = item;
-                        console.log(item);
                     }
                 });
             }
@@ -228,8 +225,6 @@
                         window.selectFood.splice(index, 1);
                     }
                 });
-                console.log(select_food_index);
-                console.log(window.selectFood);
             }
             div_el.appendChild(img_el);
             div_param_el.appendChild(p_el);
@@ -240,14 +235,10 @@
             div_el.appendChild(div_param_el);
             div_el.appendChild(input_delete_el);
             el.appendChild(div_el);
-            
         }
         
-        async function createGraph(id, name) {
-            window.selectFoodId = id;
-            window.selectFoodName = name;
-            console.log(window.selectFoodId);
-            console.log(window.selectFoodName);
+        // グラフ作成
+        async function createGraph() {
             if(window.selectFoodId == 0) {
                 // 食材を選択していない場合はグラフを描画しない
                 return;
@@ -264,8 +255,6 @@
                         return acc;
                     }, {})
                 });
-                console.log("オブジェクト同士の加算");
-                console.log(food);
                 
             } else {
                 // ドロップダウンリストクリック時のイベント
@@ -273,6 +262,8 @@
                     // 食材100gあたりの栄養素を取得
                     return res.json();
                 });
+                // グラフ表示用にグラムテキストを追加
+                window.selectFoodName = window.selectFoodName + food.amount + WORD_G;
             }
             const limit = await fetch("http://localhost:8080/limit?gender=" + window.gender + "&age=" + window.age).then(function(res) {
                 // １日に必要な栄養素の目安を取得
@@ -294,13 +285,12 @@
                 if(isFinite(element)) {
                     return element;
                 };
-                return 0.0;
+                return 0;
             });
-            console.log(food);
-            console.log(limit);
             drawGraph(label_text, nutrition, window.selectFoodName);
         }
         
+        // グラフ描画
         function drawGraph(label, nutrition, name) {
             // 前回のグラフを削除(グローバル変数)
             if(window.myChart) {
@@ -322,7 +312,7 @@
                 options: {
                     title: {
                         display: true,
-                        text: name + ' 100g / １日の摂取目安量'
+                        text: name + ' / １日の摂取目安量'
                     },
                     scales: {
                         xAxes: [{
@@ -375,21 +365,21 @@
             });
         }
         
+        // 年齢のラジオボックスボタンを押下
         var setAge = function(age) {
             window.age = age;
-            // グラフ更新
-            createGraph(window.selectFoodId, window.selectFoodName);
+            createGraph();
         }
+        
+        // 性別のトグルボタンを押下
         var toggleGender = function() {
             // 1か2をトグルで設定
             window.gender = window.gender % 2 + 1;
-            console.log(window.gender);
-            // グラフ更新
-            createGraph(window.selectFoodId, window.selectFoodName);
-            
+            createGraph();
         }
+        
         document.addEventListener("click", (e) => {
-            // ドロップダウンリストが生成されていない場合
+            // ドロップダウンリストが生成されていない場合何もしない
             if(null == document.getElementById("foods")) {
                 return;
             }
@@ -397,8 +387,11 @@
             document.getElementById("foods").remove();
         })
         
+        // 選択した食材でグラフ描画ボタンを押下
         function selectedFoodsButton() {
-            createGraph(SELECTED_FOODS_ID, SELECTED_FOODS_NAME);
+            window.selectFoodId = SELECTED_FOODS_ID;
+            window.selectFoodName = SELECTED_FOODS_NAME;
+            createGraph();
         }
     </script>
 </body>

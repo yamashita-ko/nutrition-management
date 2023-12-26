@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 public class FoodMasterViewBean implements Serializable {
 	private Integer id;
+	private String name;
 	private Long amount;
 	private Double kcal;	// エネルギー(kcal)
 	private Double protein;	// たんぱく質(g)
@@ -36,6 +37,12 @@ public class FoodMasterViewBean implements Serializable {
 	}
 	public void setId(Integer id) {
 		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
 	}
 	public Long getAmount() {
 		return amount;

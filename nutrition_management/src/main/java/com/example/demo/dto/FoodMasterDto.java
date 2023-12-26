@@ -11,6 +11,7 @@ public class FoodMasterDto implements Serializable {
 	public static FoodMasterViewBean convert(FoodMasterBean bean) {
 		FoodMasterViewBean res = new FoodMasterViewBean();
 		res.setId(bean.getFoodId());
+		res.setName(bean.getName());
 		res.setAmount(Long.valueOf(100));
 		res.setKcal(bean.getKcal().doubleValue());
 		res.setProtein(bean.getProtein());

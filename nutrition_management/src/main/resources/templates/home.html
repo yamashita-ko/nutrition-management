@@ -11,7 +11,7 @@
             <!-- 食べ物の分類ボタン作成 -->
             <div id="category_container" class="change_buttons">
                 <th:block th:each="foodType : ${typeList}">
-                <input th:id="|type${foodType.getFoodTypeId()}|" name="hoge" type="radio" th:value="${foodType.getFoodTypeId()}" th:onclick="|radioClick('__${foodType.getFoodTypeId()}__')|" />
+                <input th:id="|type${foodType.getFoodTypeId()}|" name="category" type="radio" th:value="${foodType.getFoodTypeId()}" th:onclick="|radioClick('__${foodType.getFoodTypeId()}__')|" />
                 <label th:for="|type${foodType.getFoodTypeId()}|"  th:text="${foodType.getName()}"}></label>
             </div>
             <!-- 食べ物ボタン作成 -->
@@ -37,7 +37,6 @@
                 <button onclick="selectedFoodsButton()">選択した食材でグラフ描画</button>
             </div>
             <div id="selected_foods">
-                
             </div>
         </div>
     </div>
@@ -68,6 +67,17 @@
         </div>
         <canvas id="graph"></canvas>
     </div>
+    <!-- 食べ物の分類ボタン作成 -->
+    <div id="ranking_container">
+        <h2>栄養ごとの含有率ランキング</h2>
+        <div class="ranking_buttons">
+            <th:block th:each="foodLabel : ${foodLabelList}">
+            <input th:id="|nutrition_${foodLabel.getName()}|" name="ranking" type="radio" th:value="${foodLabel.getName()}" th:onclick="|rankingClick('__${foodLabel.getName()}__')|" />
+            <label th:for="|nutrition_${foodLabel.getName()}|"  th:text="${foodLabel.getName()}"}></label>
+        </div>
+        <div id="nutrition_ranking">
+        </div>
+    </div>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/0.5.7/chartjs-plugin-annotation.min.js'></script>
@@ -76,6 +86,7 @@
         const SELECTED_FOODS_ID = 999;
         const SELECTED_FOODS_NAME = "選択した食べ物の合計";
         const DEFAULT_TYPE = 1;
+        const DEFAULT_RANKING = "kcal";
         const MAX_TYPE = 18;
         const WORD_PX = "px";
         const WORD_G = "g";
@@ -94,6 +105,7 @@
         // カテゴリボタン初期設定
         window.onload = function() {
             document.getElementById('type' + DEFAULT_TYPE).checked = true;
+            document.getElementById('nutrition_' + DEFAULT_RANKING).checked = true;
             
             for (let i = 1; i <= MAX_TYPE; i++) {
                 if(i == DEFAULT_TYPE) {
@@ -102,6 +114,8 @@
                 let view = document.getElementById('viewtype' + i);
                 view.style.display = 'none';
             }
+            // ランキング表示
+            rankingClick(DEFAULT_RANKING);
         }
 
         // カテゴリボタンクリック
@@ -202,7 +216,7 @@
                         p_el.textContent = food_name + e.target.value + WORD_G;
                         // 変更前と変更後の量から栄養量を変更する
                         item = Object.keys(item).reduce((acc, value) => {
-                            if(value == "id" || value == "amount") {
+                            if(value == "id" || value == "amount" || value == "name") {
                                 // 対象外
                                 acc[value] = item[value];
                                 return acc;
@@ -392,6 +406,45 @@
             window.selectFoodId = SELECTED_FOODS_ID;
             window.selectFoodName = SELECTED_FOODS_NAME;
             createGraph();
+        }
+        
+        // ランキング作成
+        async function rankingClick(nutrition) {
+            var rankingList = await fetch("http://" + location.host + "/ranking?nutrition=" + nutrition).then(function(res) {
+                // 食材100gあたりの栄養素を取得
+                return res.json();
+            });
+            const limit = await fetch("http://" + location.host + "/limit?gender=" + window.gender + "&age=" + window.age).then(function(res) {
+                // １日に必要な栄養素の目安を取得
+                return res.json();
+            });
+            var rankingList = Object.values(rankingList)[0];
+            var el = document.getElementById("nutrition_ranking");
+            var table_el = document.createElement("table");
+            table_el.border = 1;
+            var tr_header_el = document.createElement("tr");
+            var th_name_el = document.createElement("th");
+            var th_nutrition_el = document.createElement("th");
+            th_name_el.textContent = "名前";
+            th_nutrition_el.textContent = "100g / １日の摂取目安量(%)";
+            tr_header_el.appendChild(th_name_el);
+            tr_header_el.appendChild(th_nutrition_el);
+            table_el.appendChild(tr_header_el);
+            table_el.id = "ranking_table";
+            rankingList.forEach((item) => {
+                var tr_el = document.createElement("tr");
+                var td_name_el = document.createElement("td");
+                var td_nutrition_el = document.createElement("td");
+                td_name_el.textContent = item.name;
+                td_nutrition_el.textContent = (item[nutrition] / limit[nutrition] * 100).toFixed(1);
+                tr_el.appendChild(td_name_el);
+                tr_el.appendChild(td_nutrition_el);
+                table_el.appendChild(tr_el);
+            });
+            if(document.getElementById("ranking_table") != null) {
+                document.getElementById("ranking_table").remove();
+            }
+            el.appendChild(table_el);
         }
     </script>
 </body>

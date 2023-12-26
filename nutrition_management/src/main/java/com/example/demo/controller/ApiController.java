@@ -65,4 +65,33 @@ public class ApiController {
     	FoodMainBean foodMainBean = foodMainDao.selectByFoodMainId(foodMainId);
     	return foodMainBean;
     }
+    
+    @RequestMapping(value = "/ranking", method = RequestMethod.GET)
+	public BaseDto<FoodMasterViewBean> getNutritionRanking(@RequestParam(name = "nutrition")String nutrition) {
+    	final int RANKING_NUM = 50;
+    	switch (nutrition) {
+    	case "vita":
+    		nutrition = "vita_rae";
+    		break;
+    	case "vite":
+    		nutrition = "tocpha";
+    		break;
+    	case "vitb1":
+    		nutrition = "thia";
+    		break;
+    	case "vitb2":
+    		nutrition = "ribf";
+    		break;
+    	case "vitb6":
+    		nutrition = "vitb6a";
+    		break;
+    	}
+    	FoodMasterDao foodMasterDao = new FoodMasterDao();
+    	BaseDto<FoodMasterBean> foodMaster = foodMasterDao.findRankingOrderByNutrition(nutrition, RANKING_NUM);
+    	BaseDto<FoodMasterViewBean> foodMasterView = new BaseDto();
+    	for(FoodMasterBean bean : foodMaster.getList()) {
+    		foodMasterView.add(FoodMasterDto.convert(bean));
+    	}
+    	return foodMasterView;
+    }
 }

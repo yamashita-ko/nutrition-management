@@ -116,15 +116,15 @@
 
         // 食材クリック
         var itemClick = async (event, mainId) => {
-            await fetch("http://localhost:8080/food?mainId=" + mainId).then(function(res) {
+            await fetch("http://" + location.host + "/food?mainId=" + mainId).then(function(res) {
                 return res.json();
             }).then(function(json) {
                 var subFood = Object.values(json)[0];
                 var ul = document.createElement("ul");
                 ul.id = "foods";
                 ul.style.position = 'absolute';
-                ul.style.top = event.screenY - document.getElementById("category_container").getBoundingClientRect().height + WORD_PX;
-                ul.style.left = event.screenX + WORD_PX;
+                ul.style.top = event.clientY + WORD_PX;
+                ul.style.left = event.clientX + WORD_PX;
                 ul.style.zIndex = DROPDOWN_ZINDEX;
                 for (let i = 0; i < subFood.length; i++) {
                     // ドロップダウンリスト作成
@@ -160,7 +160,7 @@
                 // 重複する場合追加しない
                 return;
             }
-            const food_view = await fetch("http://localhost:8080/food-view?foodId=" + food.foodId).then(function(res) {
+            const food_view = await fetch("http://" + location.host + "/food-view?foodId=" + food.foodId).then(function(res) {
                 // 食材100gあたりの栄養素を取得
                 return res.json();
             });
@@ -177,7 +177,7 @@
             var input_delete_el = document.createElement("button");
             div_el.className = "select_item";
             div_param_el.className = "select_item_param";
-            const foodMain = await fetch("http://localhost:8080/food-main?foodMainId=" + food.foodMainId).then(function(res) {
+            const foodMain = await fetch("http://" + location.host + "/food-main?foodMainId=" + food.foodMainId).then(function(res) {
                 // 食材100gあたりの栄養素を取得
                 return res.json();
             });
@@ -258,18 +258,18 @@
                 
             } else {
                 // ドロップダウンリストクリック時のイベント
-                var food = await fetch("http://localhost:8080/food-view?foodId=" + window.selectFoodId).then(function(res) {
+                var food = await fetch("http://" + location.host + "/food-view?foodId=" + window.selectFoodId).then(function(res) {
                     // 食材100gあたりの栄養素を取得
                     return res.json();
                 });
                 // グラフ表示用にグラムテキストを追加
                 window.selectFoodName = window.selectFoodName + food.amount + WORD_G;
             }
-            const limit = await fetch("http://localhost:8080/limit?gender=" + window.gender + "&age=" + window.age).then(function(res) {
+            const limit = await fetch("http://" + location.host + "/limit?gender=" + window.gender + "&age=" + window.age).then(function(res) {
                 // １日に必要な栄養素の目安を取得
                 return res.json();
             });
-            var label = await fetch("http://localhost:8080/label").then(function(res) {
+            var label = await fetch("http://" + location.host + "/label").then(function(res) {
                 // グラフ表示用栄養素のカラム・ラベルを取得
                 return res.json();
             });

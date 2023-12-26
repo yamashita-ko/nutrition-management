@@ -32,31 +32,20 @@
             </div>
         </div>
         <div id="selected_container">
-            <h2>選択した食材</h2>
-            <br>
+            <div class="selected_header">
+                <h2>選択した食材</h2>
+                <button onclick="selectedFoodsButton()">選択した食材でグラフ描画</button>
+            </div>
             <div id="selected_foods">
                 
             </div>
         </div>
-    <!--
-        <div id="flex_container" class="change_buttons">
-            <th:block th:each="foodType : ${typeList}">
-            <button type="submit" th:text="${foodType.getName()}"></button>
-        </div>
-        <div id="flex_container" class="food_items">
-            <th:block th:each="foodMain : ${mainList}">
-            <div class="item">
-                <img th:src="@{/images/{image} (image=${foodMain.getImage()})}" th:alt="${foodMain.getName()}">
-                <p th:text="${foodMain.getName()}"></p>
-            </div>
-        </div>
-    -->
     </div>
     <div id="graph_container">
         <div id="option_container">
             <label class="switch-light switch-candy gender" onchange="toggleGender()">
                 <input type="checkbox">
-                    <strong class="column">性別</strong>
+                    <strong class="geder_column">性別</strong>
                     <span>
                         <span>男</span>
                         <span>女</span>
@@ -79,32 +68,19 @@
         </div>
         <canvas id="graph"></canvas>
     </div>
-    <table border="1">
-      <tr>
-        <th>id</th>
-        <th>name</th>
-        <th>image</th>
-      </tr>
-      <th:block th:each="foodMain : ${mainList}">
-        <tr>
-          <td><p th:text="${foodMain.getFoodMainId()}"></p></td>
-          <td><p th:text="${foodMain.getName()}"></p></td>
-          <td><p th:text="${foodMain.getImage()}"></p></td>
-          <td><img th:src="@{/images/{image} (image=${foodMain.getImage()})}" th:alt="${foodMain.getName()}" width="50px" height="50px"></td>
-        </tr>
-      </th:block>
-    </table>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/0.5.7/chartjs-plugin-annotation.min.js'></script>
     <link href="https://cdn.jsdelivr.net/npm/css-toggle-switch@4.1.0/dist/toggle-switch.min.css" rel="stylesheet">
     <script type="text/javascript" th:inline="javascript">
+        const SELECTED_FOODS_ID = 999;
+        const SELECTED_FOODS_NAME = "選択した食べ物の合計";
         var myChart = null;
         var gender = 1;
         var age = 29;
-        var selectFoodId = 1005;
-        var selectFoodName = "おおむぎ　七分つき押麦";
-        var selectFoodMain = [];
+        var selectFoodId = 0;
+        var selectFoodName = null;
+        var selectFood = [];
         // カテゴリボタン初期設定
         window.onload = function() {
             document.getElementById('type1').checked = true;
@@ -114,7 +90,7 @@
                 view.style.display = 'none';
             }
             // デフォルトグラフ描画
-            createGraph(window.selectFoodId, window.selectFoodName);
+            //createGraph(window.selectFoodId, window.selectFoodName);
         }
 
         // カテゴリボタンクリック
@@ -131,7 +107,7 @@
         var itemClick = async (event, mainId) => {
             console.log("マウスＸ" + event.screenX);
             console.log("マウスＹ" + event.screenY);
-            await fetch("http://localhost:8080/food-main?mainId=" + mainId).then(function(res) {
+            await fetch("http://localhost:8080/food?mainId=" + mainId).then(function(res) {
                 return res.json();
             }).then(function(json) {
                 // 既に表示している場合スルー
@@ -153,10 +129,8 @@
                     button.style.display = "block";
                     // 引数あり関数をonclickで呼び出す場合アロー関数を使用
                     button.onclick = (e) => {
-                        console.log("selectFoodMain");
-                        window.selectFoodMain.push(subFood[i]);
                         // 選択した食べ物を選択した食材へ移動
-                        createSelectedFood();
+                        createSelectedFood(subFood[i]);
                         // グラフ作成
                         createGraph(subFood[i].foodId, subFood[i].name);
                         // 親要素のonclickに影響させない
@@ -172,9 +146,100 @@
             });
         }
         
-        function createSelectedFood() {
+        async function createSelectedFood(food) {
+            const food_ids = window.selectFood.map((obj) => obj.id);
+            console.log(food_ids);
+            if(food_ids.includes(food.foodId)) {
+                // 重複する場合追加しない
+                return;
+            }
+            const food_view = await fetch("http://localhost:8080/food-view?foodId=" + food.foodId).then(function(res) {
+                // 食材100gあたりの栄養素を取得
+                return res.json();
+            });
+            console.log("selectFood");
+            var select_food_index = window.selectFood.push(food_view);
+            console.log(select_food_index);
+            console.log(window.selectFood);
             console.log("createSelectedFood");
-            console.log(window.selectFoodMain);
+            var el = document.getElementById("selected_foods");
+            var div_el = document.createElement("div");
+            var img_el = document.createElement("img");
+            var div_param_el = document.createElement("div");
+            var p_el = document.createElement("p");
+            var slider_div_el = document.createElement("div");
+            var input_el = document.createElement("input");
+            var span_min_el = document.createElement("span");
+            var span_max_el = document.createElement("span");
+            var input_delete_el = document.createElement("button");
+            div_el.className = "select_item";
+            div_param_el.className = "select_item_param";
+            const foodMain = await fetch("http://localhost:8080/food-main?foodMainId=" + food.foodMainId).then(function(res) {
+                // 食材100gあたりの栄養素を取得
+                return res.json();
+            });
+            console.log(foodMain);
+            img_el.src = "images/" + foodMain.image;
+            const MAX_LENGTH = 15;
+            var food_name = food.name;
+            if(food_name.length > MAX_LENGTH) {
+                food_name = food_name.substr(0, MAX_LENGTH) + '...';
+            }
+            p_el.textContent  = food_name + food_view.amount + "g";
+            input_el.type = "range";
+            input_el.value = food_view.amount;
+            input_el.min = "1";
+            span_min_el.innerText = input_el.min + "g";
+            input_el.max = "1000";
+            span_max_el.innerText = input_el.max + "g";
+            input_el.step = "1";
+            input_el.style.width = 300 + "px";
+            input_el.style.height = 30 + "px";
+            input_el.onchange = (e) => {
+                window.selectFood.forEach((item, index) => {
+                    if(item.id === food.foodId) {
+                        console.log("スライダーで量調整");
+                        console.log(item);
+                        p_el.textContent = food_name + e.target.value + "g";
+                        // 変更前と変更後の量から栄養量を変更する
+                        item = Object.keys(item).reduce((acc, value) => {
+                            if(value == "id" || value == "amount") {
+                                console.log(value);
+                                // 対象外
+                                acc[value] = item[value];
+                                return acc;
+                            }
+                            acc[value] = item[value] * e.target.value / item["amount"];
+                            return acc;
+                        }, {});
+                        item.amount = parseInt(e.target.value);
+                        window.selectFood[index] = item;
+                        console.log(item);
+                    }
+                });
+            }
+            input_delete_el.innerHTML = "削除";
+            input_delete_el.style.backgroundColor = "red";
+            input_delete_el.onclick = () => {
+                // 削除ボタンをクリックした場合選択した食べ物のDOMとデータを削除
+                div_el.remove();
+                window.selectFood.forEach((item, index) => {
+                    if(item.id === food.foodId) {
+                        window.selectFood.splice(index, 1);
+                    }
+                });
+                console.log(select_food_index);
+                console.log(window.selectFood);
+            }
+            div_el.appendChild(img_el);
+            div_param_el.appendChild(p_el);
+            slider_div_el.appendChild(span_min_el);
+            slider_div_el.appendChild(input_el);
+            slider_div_el.appendChild(span_max_el);
+            div_param_el.appendChild(slider_div_el);
+            div_el.appendChild(div_param_el);
+            div_el.appendChild(input_delete_el);
+            el.appendChild(div_el);
             
         }
         
@@ -183,12 +248,32 @@
             window.selectFoodName = name;
             console.log(window.selectFoodId);
             console.log(window.selectFoodName);
-            // ドロップダウンリストクリック時のイベント
-            document.getElementById("selected_container");
-            const food = await fetch("http://localhost:8080/food?foodId=" + window.selectFoodId).then(function(res) {
-                // 食材100gあたりの栄養素を取得
-                return res.json();
-            });
+            if(window.selectFoodId == 0) {
+                // 食材を選択していない場合はグラフを描画しない
+                return;
+            }
+            if(window.selectFoodId == SELECTED_FOODS_ID) {
+                // 選択した食材でグラフ描画ボタンをクリック
+                // オブジェクト同士を加算
+                var food = [];
+                window.selectFood.forEach((item, index) => {
+                    food = Object.keys(item).reduce((acc, value) => {
+                        // １週目はオブジェクトでないためケア
+                        const buf = food[value] === undefined ? 0 : food[value];
+                        acc[value] = buf + item[value];
+                        return acc;
+                    }, {})
+                });
+                console.log("オブジェクト同士の加算");
+                console.log(food);
+                
+            } else {
+                // ドロップダウンリストクリック時のイベント
+                var food = await fetch("http://localhost:8080/food-view?foodId=" + window.selectFoodId).then(function(res) {
+                    // 食材100gあたりの栄養素を取得
+                    return res.json();
+                });
+            }
             const limit = await fetch("http://localhost:8080/limit?gender=" + window.gender + "&age=" + window.age).then(function(res) {
                 // １日に必要な栄養素の目安を取得
                 return res.json();
@@ -202,6 +287,7 @@
             const colmun = label.map((obj) => obj.name);
             var nutrition = [];
             // 食材100g / 1日の摂取量 の割合を算出しlabelと同じ順番で格納 小数第2位四捨五入
+            // columnでメンバ変数名を指定し加算してオブジェクトに詰める
             colmun.forEach((element) => nutrition.push((food[element] / limit[element] * 100).toFixed(1)));
             // ゼロ除算考慮
             nutrition = nutrition.map((element) => {
@@ -311,19 +397,9 @@
             document.getElementById("foods").remove();
         })
         
-        var choices;
-        
-        var hover = async function(index) {
-            return;
-            console.log(index);
-            //let item = document.getElementById('item' + index);
-            await fetch("http://localhost:8080/food-main?index=" + index).then(function(res) {
-                return res.json();
-            }).then(function(json) {
-              console.log(json);
-            });
+        function selectedFoodsButton() {
+            createGraph(SELECTED_FOODS_ID, SELECTED_FOODS_NAME);
         }
-        
     </script>
 </body>
 </html>

@@ -3,6 +3,8 @@ package com.example.demo.bean;
 import java.io.Serializable;
 
 public class FoodMasterViewBean implements Serializable {
+	private Integer id;
+	private Long amount;
 	private Double kcal;	// エネルギー(kcal)
 	private Double protein;	// たんぱく質(g)
 	private Double fat;		// 脂質(g)
@@ -29,6 +31,18 @@ public class FoodMasterViewBean implements Serializable {
 	private Double fol;		// 葉酸(µg)
 	private Double pantac;	// パントテン酸(mg)
 	private Double vitc;	// ビタミンC(mg)
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	public Long getAmount() {
+		return amount;
+	}
+	public void setAmount(Long amount) {
+		this.amount = amount;
+	}
 	public Double getKcal() {
 		return kcal;
 	}

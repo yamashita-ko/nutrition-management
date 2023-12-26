@@ -35,7 +35,7 @@ public class HomeController {
     	
     	// type毎にDB検索
     	for(Long type : distinctType) {
-    		foodMainDtoList.add(foodMainDao.selectType(type.intValue()));
+    		foodMainDtoList.add(foodMainDao.selectByFoodTypeId(type.intValue()));
     	}
         //List<Weapon> weaponlist = weaponService.searchAll();
         //model.addAttribute("weaponlist", weaponlist);

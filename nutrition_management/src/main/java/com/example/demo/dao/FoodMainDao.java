@@ -38,11 +38,11 @@ public class FoodMainDao extends BaseDao{
 		return result;
 	}
 
-	public BaseDto<FoodMainBean> selectType(int i) {
+	public BaseDto<FoodMainBean> selectByFoodTypeId(int foodTypeId) {
 		Statement stmt = null;
 		ResultSet rs = null;
 		BaseDto<FoodMainBean> result = new BaseDto<>();
-		String sql = "SELECT * FROM food_main where food_type_id = " + i;
+		String sql = "SELECT * FROM food_main where food_type_id = " + foodTypeId;
 		try {
 			connect();
 			stmt = con.createStatement();
@@ -67,5 +67,36 @@ public class FoodMainDao extends BaseDao{
 		}
 		disconnect();
 		return result;
+	}
+
+	public FoodMainBean selectByFoodMainId(int foodMainId) {
+		Statement stmt = null;
+		ResultSet rs = null;
+		BaseDto<FoodMainBean> result = new BaseDto<>();
+		String sql = "SELECT * FROM food_main where food_main_id = " + foodMainId;
+		try {
+			connect();
+			stmt = con.createStatement();
+			rs = stmt.executeQuery(sql);
+			while(rs.next()) {
+				FoodMainBean bean = new FoodMainBean();
+				bean.setFoodTypeId(rs.getLong("food_type_id"));
+				bean.setFoodMainId(rs.getLong("food_main_id"));
+				bean.setName(rs.getString("name"));
+				bean.setImage(rs.getString("image"));
+				result.add(bean);
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if(rs != null) rs.close();
+				if(stmt != null) stmt.close();
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+		disconnect();
+		return result.get(0);
 	}
 }

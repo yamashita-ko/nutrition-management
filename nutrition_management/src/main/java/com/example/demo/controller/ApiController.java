@@ -9,10 +9,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.bean.FoodLabelBean;
+import com.example.demo.bean.FoodMainBean;
 import com.example.demo.bean.FoodMasterBean;
 import com.example.demo.bean.FoodMasterViewBean;
 import com.example.demo.bean.LimitBean;
 import com.example.demo.dao.FoodLabelDao;
+import com.example.demo.dao.FoodMainDao;
 import com.example.demo.dao.FoodMasterDao;
 import com.example.demo.dao.LimitDao;
 import com.example.demo.dto.BaseDto;
@@ -27,14 +29,14 @@ public class ApiController {
     	return res;
     }
 
-    @RequestMapping(value = "/food-main", method = RequestMethod.GET)
+    @RequestMapping(value = "/food", method = RequestMethod.GET)
 	public BaseDto<FoodMasterBean> getFoodByMainId(@RequestParam(name = "mainId")Integer mainId) {
     	FoodMasterDao foodMasterDao = new FoodMasterDao();
     	BaseDto<FoodMasterBean> foodMaster = foodMasterDao.findAllByMainId(mainId);
     	return foodMaster;
     }
 
-    @RequestMapping(value = "/food", method = RequestMethod.GET)
+    @RequestMapping(value = "/food-view", method = RequestMethod.GET)
 	public FoodMasterViewBean getFoodByFoodId(@RequestParam(name = "foodId")Integer foodId) {
     	FoodMasterDao foodMasterDao = new FoodMasterDao();
     	FoodMasterBean foodMaster = foodMasterDao.findByFoodId(foodId);
@@ -57,4 +59,10 @@ public class ApiController {
     	return limit;
     }
 
+    @RequestMapping(value = "/food-main", method = RequestMethod.GET)
+	public FoodMainBean getGraphData(@RequestParam(name = "foodMainId")Integer foodMainId) {
+    	FoodMainDao foodMainDao = new FoodMainDao();
+    	FoodMainBean foodMainBean = foodMainDao.selectByFoodMainId(foodMainId);
+    	return foodMainBean;
+    }
 }

@@ -21,7 +21,7 @@
                 <div th:id="|viewtype${stat.count}|" class="disp_switch">
                     <!-- flexを使用するためのクラス -->
                     <div class="food_items">
-                    <th:block th:each="foodMain : ${foodMainDto.getList()}">
+                    <th:block th:each="foodMain : ${foodMainDto}">
                         <!-- item(数字)のidを設定しどれが押されたかをscript側で判定 -->
                         <div th:id="|item${foodMain.getFoodMainId()}|" class="item" th:onclick="|itemClick(event, '${foodMain.getFoodMainId()}')|">
                             <img th:src="@{/images/{image} (image=${foodMain.getImage()})}" th:alt="${foodMain.getName()}">
@@ -133,7 +133,7 @@
             await fetch("http://" + location.host + "/food?mainId=" + mainId).then(function(res) {
                 return res.json();
             }).then(function(json) {
-                var subFood = Object.values(json)[0];
+                var subFood = Object.values(json);
                 var ul = document.createElement("ul");
                 ul.id = "foods";
                 ul.style.position = 'absolute';
@@ -287,7 +287,7 @@
                 // グラフ表示用栄養素のカラム・ラベルを取得
                 return res.json();
             });
-            label = Object.values(label)[0];
+            label = Object.values(label);
             const label_text = label.map((obj) => obj.nameJP);
             const colmun = label.map((obj) => obj.name);
             var nutrition = [];
@@ -418,7 +418,7 @@
                 // １日に必要な栄養素の目安を取得
                 return res.json();
             });
-            var rankingList = Object.values(rankingList)[0];
+            var rankingList = Object.values(rankingList);
             var el = document.getElementById("nutrition_ranking");
             var table_el = document.createElement("table");
             table_el.border = 1;

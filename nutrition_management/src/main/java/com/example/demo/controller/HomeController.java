@@ -9,13 +9,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.example.demo.bean.FoodLabelBean;
-import com.example.demo.bean.FoodMainBean;
-import com.example.demo.bean.FoodTypeBean;
 import com.example.demo.dao.FoodLabelDao;
 import com.example.demo.dao.FoodMainDao;
 import com.example.demo.dao.FoodTypeDao;
-import com.example.demo.dto.BaseDto;
+import com.example.demo.dto.FoodLabelDto;
+import com.example.demo.dto.FoodMainDto;
+import com.example.demo.dto.FoodTypeDto;
 
 @Controller
 public class HomeController {
@@ -24,13 +23,13 @@ public class HomeController {
     	FoodMainDao foodMainDao = new FoodMainDao();
     	FoodTypeDao foodTypeDao = new FoodTypeDao();
     	FoodLabelDao foodLabelDao = new FoodLabelDao();
-    	BaseDto<FoodMainBean> foodMainDto = foodMainDao.select();
-    	List<BaseDto<FoodMainBean>> foodMainDtoList = new ArrayList<>();
-    	BaseDto<FoodTypeBean> foodTypeDto = foodTypeDao.select();
-    	BaseDto<FoodLabelBean> foodLabelDto = foodLabelDao.findAll();
+    	List<FoodMainDto> foodMainDto = foodMainDao.select();
+    	List<List<FoodMainDto>> foodMainDtoList = new ArrayList<>();
+    	List<FoodTypeDto> foodTypeDto = foodTypeDao.select();
+    	List<FoodLabelDto> foodLabelDto = foodLabelDao.findAll();
     	
     	// typeの部分の重複を削除して抽出
-    	List<Long> distinctType = foodTypeDto.getList()
+    	List<Long> distinctType = foodTypeDto
     				.stream()
     				.map(obj -> obj.getFoodTypeId())
     				.distinct()
@@ -40,10 +39,10 @@ public class HomeController {
     	for(Long type : distinctType) {
     		foodMainDtoList.add(foodMainDao.selectByFoodTypeId(type.intValue()));
     	}
-        model.addAttribute("mainList", foodMainDto.getList());
+        model.addAttribute("mainList", foodMainDto);
         model.addAttribute("foodMainDtoList", foodMainDtoList);
-        model.addAttribute("typeList", foodTypeDto.getList());
-        model.addAttribute("foodLabelList", foodLabelDto.getList());
+        model.addAttribute("typeList", foodTypeDto);
+        model.addAttribute("foodLabelList", foodLabelDto);
 		return "home";
 	}
 	

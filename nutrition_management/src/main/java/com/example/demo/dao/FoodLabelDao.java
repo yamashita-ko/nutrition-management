@@ -2,26 +2,27 @@ package com.example.demo.dao;
 
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.example.demo.bean.FoodLabelBean;
-import com.example.demo.dto.BaseDto;
+import com.example.demo.dto.FoodLabelDto;
 
 public class FoodLabelDao extends BaseDao{
-	public BaseDto<FoodLabelBean> findAll() {
+	public List<FoodLabelDto> findAll() {
 		Statement stmt = null;
 		ResultSet rs = null;
-		BaseDto<FoodLabelBean> result = new BaseDto();
+		List<FoodLabelDto> result = new ArrayList<>();
 		String sql = "SELECT * FROM food_label";
 		try {
 			connect();
 			stmt = con.createStatement();
 			rs = stmt.executeQuery(sql);
 			while(rs.next()) {
-				FoodLabelBean bean = new FoodLabelBean();
-				bean.setId(rs.getInt("id"));
-				bean.setName(rs.getString("name"));
-				bean.setNameJP(rs.getString("name_jp"));
-				result.add(bean);
+				FoodLabelDto dto = new FoodLabelDto();
+				dto.setId(rs.getInt("id"));
+				dto.setName(rs.getString("name"));
+				dto.setNameJP(rs.getString("name_jp"));
+				result.add(dto);
 			}
 		} catch(Exception e) {
 			e.printStackTrace();

@@ -2,20 +2,20 @@ package com.example.demo.dao;
 
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.example.demo.bean.LimitBean;
-import com.example.demo.dto.BaseDto;
+import com.example.demo.dto.LimitDto;
 
 public class LimitDao extends BaseDao{
 	
 	public static final List<Integer> ages = Arrays.asList(1, 2, 5, 7, 9, 11, 14, 17, 29, 49, 64, 74, 120);
 	
-	public LimitBean select(Integer gender, Integer age) {
+	public LimitDto select(Integer gender, Integer age) {
 		Statement stmt = null;
 		ResultSet rs = null;
-		BaseDto<LimitBean> result = new BaseDto<>();
+		List<LimitDto> result = new ArrayList<>();
 		
 		for(int i = 0; i < ages.size(); i++) {
 			if(age <= ages.get(i)) {
@@ -35,36 +35,36 @@ public class LimitDao extends BaseDao{
 			stmt = con.createStatement();
 			rs = stmt.executeQuery(sql);
 			while(rs.next()) {
-				LimitBean bean = new LimitBean();
-				bean.setGender(rs.getInt("gender"));
-				bean.setAge(rs.getInt("age"));
-				bean.setKcal(rs.getDouble("kcal"));
-				bean.setProtein(rs.getDouble("protein"));
-				bean.setFat(rs.getDouble("fat"));
-				bean.setChocdf(rs.getDouble("chocdf"));
-				bean.setFib(rs.getDouble("fib"));
-				bean.setNa(rs.getDouble("na"));
-				bean.setK(rs.getDouble("k"));
-				bean.setCa(rs.getDouble("ca"));
-				bean.setMg(rs.getDouble("mg"));
-				bean.setP(rs.getDouble("p"));
-				bean.setFe(rs.getDouble("fe"));
-				bean.setZn(rs.getDouble("zn"));
-				bean.setCu(rs.getDouble("cu"));
-				bean.setMn(rs.getDouble("mn"));
-				bean.setVita(rs.getDouble("vita"));
-				bean.setVitd(rs.getDouble("vitd"));
-				bean.setVite(rs.getDouble("vite"));
-				bean.setVitk(rs.getDouble("vitk"));
-				bean.setVitb1(rs.getDouble("vitb1"));
-				bean.setVitb2(rs.getDouble("vitb2"));
-				bean.setNia(rs.getDouble("nia"));
-				bean.setVitb6(rs.getDouble("vitb6"));
-				bean.setVitb12(rs.getDouble("vitb12"));
-				bean.setFol(rs.getDouble("fol"));
-				bean.setPantac(rs.getDouble("pantac"));
-				bean.setVitc(rs.getDouble("vitc"));
-				result.add(bean);
+				LimitDto dto = new LimitDto();
+				dto.setGender(rs.getInt("gender"));
+				dto.setAge(rs.getInt("age"));
+				dto.setKcal(rs.getDouble("kcal"));
+				dto.setProtein(rs.getDouble("protein"));
+				dto.setFat(rs.getDouble("fat"));
+				dto.setChocdf(rs.getDouble("chocdf"));
+				dto.setFib(rs.getDouble("fib"));
+				dto.setNa(rs.getDouble("na"));
+				dto.setK(rs.getDouble("k"));
+				dto.setCa(rs.getDouble("ca"));
+				dto.setMg(rs.getDouble("mg"));
+				dto.setP(rs.getDouble("p"));
+				dto.setFe(rs.getDouble("fe"));
+				dto.setZn(rs.getDouble("zn"));
+				dto.setCu(rs.getDouble("cu"));
+				dto.setMn(rs.getDouble("mn"));
+				dto.setVita(rs.getDouble("vita"));
+				dto.setVitd(rs.getDouble("vitd"));
+				dto.setVite(rs.getDouble("vite"));
+				dto.setVitk(rs.getDouble("vitk"));
+				dto.setVitb1(rs.getDouble("vitb1"));
+				dto.setVitb2(rs.getDouble("vitb2"));
+				dto.setNia(rs.getDouble("nia"));
+				dto.setVitb6(rs.getDouble("vitb6"));
+				dto.setVitb12(rs.getDouble("vitb12"));
+				dto.setFol(rs.getDouble("fol"));
+				dto.setPantac(rs.getDouble("pantac"));
+				dto.setVitc(rs.getDouble("vitc"));
+				result.add(dto);
 			}
 		} catch(Exception e) {
 			e.printStackTrace();

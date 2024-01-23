@@ -1,8 +1,8 @@
-package com.example.demo.bean;
+package com.example.demo.dto;
 
 import java.io.Serializable;
 
-public class LimitBean implements Serializable {
+public class LimitDto implements Serializable {
 	private Integer gender;
 	private Integer age;
 	private Double kcal;

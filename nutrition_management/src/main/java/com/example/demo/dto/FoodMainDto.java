@@ -1,27 +1,35 @@
 package com.example.demo.dto;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.example.demo.bean.FoodMainBean;
 
 public class FoodMainDto implements Serializable {
-	private ArrayList<FoodMainBean> list;
-	
-	public FoodMainDto() {
-		list = new ArrayList<FoodMainBean>();
+	private Long foodTypeId;
+    private Long foodMainId;
+    private String name;
+    private String image;
+
+	public Long getFoodTypeId() {
+		return foodTypeId;
 	}
-	public void add (FoodMainBean bean) {
-		list.add(bean);
+	public void setFoodTypeId(Long foodTypeId) {
+		this.foodTypeId = foodTypeId;
 	}
-	public FoodMainBean get(int i) {
-		return list.get(i);
+	public Long getFoodMainId() {
+		return foodMainId;
 	}
-	public int size() {
-		return list.size();
+	public void setFoodMainId(Long foodMainId) {
+		this.foodMainId = foodMainId;
 	}
-	public List<FoodMainBean> getList(){
-		return list;
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getImage() {
+		return image;
+	}
+	public void setImage(String image) {
+		this.image = image;
 	}
 }

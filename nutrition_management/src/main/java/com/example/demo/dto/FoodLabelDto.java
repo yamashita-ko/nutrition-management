@@ -1,8 +1,8 @@
-package com.example.demo.bean;
+package com.example.demo.dto;
 
 import java.io.Serializable;
 
-public class FoodLabelBean implements Serializable {
+public class FoodLabelDto implements Serializable {
 	private Integer id;
 	private String name;
 	private String nameJP;

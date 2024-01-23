@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -8,17 +9,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.bean.FoodLabelBean;
-import com.example.demo.bean.FoodMainBean;
-import com.example.demo.bean.FoodMasterBean;
-import com.example.demo.bean.FoodMasterViewBean;
-import com.example.demo.bean.LimitBean;
 import com.example.demo.dao.FoodLabelDao;
 import com.example.demo.dao.FoodMainDao;
 import com.example.demo.dao.FoodMasterDao;
 import com.example.demo.dao.LimitDao;
-import com.example.demo.dto.BaseDto;
+import com.example.demo.dto.FoodLabelDto;
+import com.example.demo.dto.FoodMainDto;
 import com.example.demo.dto.FoodMasterDto;
+import com.example.demo.dto.FoodMasterViewDto;
+import com.example.demo.dto.LimitDto;
 
 @RestController
 public class ApiController {
@@ -30,44 +29,44 @@ public class ApiController {
     }
 
     @RequestMapping(value = "/food", method = RequestMethod.GET)
-	public BaseDto<FoodMasterBean> getFoodByMainId(@RequestParam(name = "mainId")Integer mainId) {
+	public List<FoodMasterDto> getFoodByMainId(@RequestParam(name = "mainId")Integer mainId) {
     	FoodMasterDao foodMasterDao = new FoodMasterDao();
-    	BaseDto<FoodMasterBean> foodMaster = foodMasterDao.findAllByMainId(mainId);
+    	List<FoodMasterDto> foodMaster = foodMasterDao.findAllByMainId(mainId);
     	return foodMaster;
     }
 
     @RequestMapping(value = "/food-view", method = RequestMethod.GET)
-	public FoodMasterViewBean getFoodByFoodId(@RequestParam(name = "foodId")Integer foodId) {
+	public FoodMasterViewDto getFoodByFoodId(@RequestParam(name = "foodId")Integer foodId) {
     	FoodMasterDao foodMasterDao = new FoodMasterDao();
-    	FoodMasterBean foodMaster = foodMasterDao.findByFoodId(foodId);
+    	FoodMasterDto foodMaster = foodMasterDao.findByFoodId(foodId);
     	// 表示用に変換
-    	FoodMasterViewBean foodMasterView = FoodMasterDto.convert(foodMaster);
+    	FoodMasterViewDto foodMasterView = FoodMasterDao.convert(foodMaster);
     	return foodMasterView;
     }
 
     @RequestMapping(value = "/label", method = RequestMethod.GET)
-	public BaseDto<FoodLabelBean> getLabel() {
+	public List<FoodLabelDto> getLabel() {
     	FoodLabelDao foodLabelDao = new FoodLabelDao();
-    	BaseDto<FoodLabelBean> foodLabel = foodLabelDao.findAll();
+    	List<FoodLabelDto> foodLabel = foodLabelDao.findAll();
     	return foodLabel;
     }
 
     @RequestMapping(value = "/limit", method = RequestMethod.GET)
-	public LimitBean getGraphData(@RequestParam(name = "gender")Integer gender, @RequestParam(name = "age")Integer age) {
+	public LimitDto getGraphData(@RequestParam(name = "gender")Integer gender, @RequestParam(name = "age")Integer age) {
     	LimitDao limitDao = new LimitDao();
-    	LimitBean limit = limitDao.select(gender, age);
+    	LimitDto limit = limitDao.select(gender, age);
     	return limit;
     }
 
     @RequestMapping(value = "/food-main", method = RequestMethod.GET)
-	public FoodMainBean getGraphData(@RequestParam(name = "foodMainId")Integer foodMainId) {
+	public FoodMainDto getGraphData(@RequestParam(name = "foodMainId")Integer foodMainId) {
     	FoodMainDao foodMainDao = new FoodMainDao();
-    	FoodMainBean foodMainBean = foodMainDao.selectByFoodMainId(foodMainId);
-    	return foodMainBean;
+    	FoodMainDto foodMainDto = foodMainDao.selectByFoodMainId(foodMainId);
+    	return foodMainDto;
     }
     
     @RequestMapping(value = "/ranking", method = RequestMethod.GET)
-	public BaseDto<FoodMasterViewBean> getNutritionRanking(@RequestParam(name = "nutrition")String nutrition) {
+	public List<FoodMasterViewDto> getNutritionRanking(@RequestParam(name = "nutrition")String nutrition) {
     	final int RANKING_NUM = 50;
     	switch (nutrition) {
     	case "vita":
@@ -87,10 +86,10 @@ public class ApiController {
     		break;
     	}
     	FoodMasterDao foodMasterDao = new FoodMasterDao();
-    	BaseDto<FoodMasterBean> foodMaster = foodMasterDao.findRankingOrderByNutrition(nutrition, RANKING_NUM);
-    	BaseDto<FoodMasterViewBean> foodMasterView = new BaseDto();
-    	for(FoodMasterBean bean : foodMaster.getList()) {
-    		foodMasterView.add(FoodMasterDto.convert(bean));
+    	List<FoodMasterDto> foodMaster = foodMasterDao.findRankingOrderByNutrition(nutrition, RANKING_NUM);
+    	List<FoodMasterViewDto> foodMasterView = new ArrayList<>();
+    	for(FoodMasterDto dto : foodMaster) {
+    		foodMasterView.add(FoodMasterDao.convert(dto));
     	}
     	return foodMasterView;
     }
